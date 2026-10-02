@@ -453,6 +453,7 @@ static int create_sdw_dailinks(struct snd_soc_card *card,
 
 static int soc_card_dai_links_create(struct snd_soc_card *card)
 {
+	struct asoc_sdw_mc_private *ctx = snd_soc_card_get_drvdata(card);
 	struct device *dev = card->dev;
 	int sdw_be_num = 0;
 	struct asoc_sdw_endpoint *soc_ends __free(kfree) = NULL;
@@ -499,7 +500,7 @@ static int soc_card_dai_links_create(struct snd_soc_card *card)
 	if (!soc_aux)
 		return -ENOMEM;
 
-	ret = asoc_sdw_parse_sdw_endpoints(card, soc_aux, soc_dais, soc_ends,
+	ret = asoc_sdw_parse_sdw_endpoints(dev, ctx, soc_aux, soc_dais, soc_ends,
 					   &num_confs);
 	if (ret < 0) {
 		dev_err(dev, "failed to parse sdw devices/endpoints: %d\n",
