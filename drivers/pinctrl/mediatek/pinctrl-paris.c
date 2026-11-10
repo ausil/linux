@@ -107,6 +107,9 @@ static int mtk_pinmux_gpio_request_enable(struct pinctrl_dev *pctldev,
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
 	const struct mtk_pin_desc *desc;
 
+	if (mtk_is_virt_gpio(hw, pin))
+		return 0;
+
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[pin];
 
 	return mtk_hw_set_value(hw, desc, PINCTRL_PIN_REG_MODE,
@@ -119,6 +122,9 @@ static int mtk_pinmux_gpio_set_direction(struct pinctrl_dev *pctldev,
 {
 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
 	const struct mtk_pin_desc *desc;
+
+	if (mtk_is_virt_gpio(hw, pin))
+		return input ? 0 : -ENOTSUPP;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[pin];
 
@@ -136,6 +142,9 @@ static int mtk_pinconf_get(struct pinctrl_dev *pctldev,
 
 	if (pin >= hw->soc->npins)
 		return -EINVAL;
+
+	if (mtk_is_virt_gpio(hw, pin))
+		return -ENOTSUPP;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[pin];
 
@@ -271,6 +280,9 @@ static int mtk_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
 
 	if (pin >= hw->soc->npins)
 		return -EINVAL;
+
+	if (mtk_is_virt_gpio(hw, pin))
+		return -ENOTSUPP;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[pin];
 
@@ -879,6 +891,9 @@ static int mtk_gpio_get(struct gpio_chip *chip, unsigned int gpio)
 	const struct mtk_pin_desc *desc;
 	int value, err;
 
+	if (mtk_is_virt_gpio(hw, gpio))
+		return -ENOTSUPP;
+
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
 
 	err = mtk_hw_get_value(hw, desc, PINCTRL_PIN_REG_DI, &value);
@@ -892,6 +907,9 @@ static int mtk_gpio_set(struct gpio_chip *chip, unsigned int gpio, int value)
 {
 	struct mtk_pinctrl *hw = gpiochip_get_data(chip);
 	const struct mtk_pin_desc *desc;
+
+	if (mtk_is_virt_gpio(hw, gpio))
+		return -ENOTSUPP;
 
 	desc = (const struct mtk_pin_desc *)&hw->soc->pins[gpio];
 
