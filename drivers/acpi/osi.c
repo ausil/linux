@@ -488,6 +488,19 @@ static const struct dmi_system_id acpi_osi_dmi_table[] __initconst = {
 		},
 	},
 	/*
+	 * HP gates \_SB.SSPM, HFRP, SVP0 and COM1-3 on _OSI("Windows 2022")
+	 * and checks no other Windows string past 2013, so only that one
+	 * needs dropping.
+	 */
+	{
+	.callback = dmi_disable_osi_win11_22h2,
+	.ident = "HP OmniBook X Laptop 14-ks0xxx",
+	.matches = {
+		    DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+		    DMI_MATCH(DMI_BOARD_NAME, "8F22"),
+		},
+	},
+	/*
 	 * ASUS's \MSOS tries "Windows 2022" and then "Windows 2001", so
 	 * without the first it reports Windows XP, and the EC event handler
 	 * sends the brightness and volume hotkeys to ASUS WMI only. With no
