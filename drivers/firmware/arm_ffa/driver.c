@@ -1934,6 +1934,27 @@ static int ffa_irq_map(u32 id)
 		irq = irq_create_of_mapping(&oirq);
 		of_node_put(gic);
 #ifdef CONFIG_ACPI
+	} else if (intid < 16) {
+		/*
+		 * SGIs are not GSIs, so acpi_register_gsi() cannot map them
+		 * (GICv3 rejects a two-cell request below 16). Use the same
+		 * one-cell SGI encoding as the device tree path, against the
+		 * irqchip that owns the GSI domain.
+		 */
+		acpi_gsi_domain_disp_fn gsi_domain = acpi_get_gsi_dispatcher();
+		struct irq_fwspec fwspec = {
+			.param_count = 1,
+			.param[0] = intid,
+		};
+
+		if (!gsi_domain)
+			return -ENXIO;
+
+		fwspec.fwnode = gsi_domain(intid);
+		if (!fwspec.fwnode)
+			return -ENXIO;
+
+		irq = irq_create_fwspec_mapping(&fwspec);
 	} else {
 		irq = acpi_register_gsi(NULL, intid, ACPI_EDGE_SENSITIVE,
 					ACPI_ACTIVE_HIGH);
