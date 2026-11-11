@@ -224,6 +224,27 @@ static const struct snd_soc_acpi_link_adr mtk_sdw_cs35l56_l0_cs42l43_l1[] = {
 };
 
 /*
+ * Two-amp variant of the dual-link Cirrus layout: 2x CS35L56 on link0 at
+ * unique IDs 0x30/0x31 and the CS42L43 jack codec on link1 at 0x30, as
+ * found on the HP OmniBook X 14 (subsystem 103C:8F22). The four-amp
+ * entry cannot match these boards since the number of identical parts
+ * enumerated on a link must equal the number listed.
+ */
+static const struct snd_soc_acpi_link_adr mtk_sdw_cs35l56x2_l0_cs42l43_l1[] = {
+	{
+		.mask = BIT(0),
+		.num_adr = 2,
+		.adr_d = cs35l56x4_l0_adr,
+	},
+	{
+		.mask = BIT(1),
+		.num_adr = ARRAY_SIZE(cs42l43_l1_adr),
+		.adr_d = cs42l43_l1_adr,
+	},
+	{}
+};
+
+/*
  * Config 2: SDW0 = 2x RT1321 (amps, aggregated), SDW1 = RT713 (jack codec).
  * Topology: uids 0x30/0x31 on link0, 0x30
  * on link1. RT1321/RT713 are handled by the rt1320-sdw/rt712-sdca drivers;
@@ -400,6 +421,11 @@ static struct snd_soc_acpi_mach mtk_sdw_machines[] = {
 	{
 		.link_mask = BIT(0) | BIT(1),
 		.links     = mtk_sdw_cs35l56_l0_cs42l43_l1,
+		.drv_name  = "mtk_sdw_mc",
+	},
+	{
+		.link_mask = BIT(0) | BIT(1),
+		.links     = mtk_sdw_cs35l56x2_l0_cs42l43_l1,
 		.drv_name  = "mtk_sdw_mc",
 	},
 	/*
