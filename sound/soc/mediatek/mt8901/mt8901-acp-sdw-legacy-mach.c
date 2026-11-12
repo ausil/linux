@@ -568,6 +568,8 @@ static int mt8901_card_probe(struct platform_device *pdev)
 	card = &ctx->card;
 	card->dev = &pdev->dev;
 	card->name = "mt8901-soundwire";
+	/* ALSA driver names are 15 chars max; UCM matches on this one */
+	card->driver_name = "mt8901-sdw";
 	card->owner = THIS_MODULE;
 	card->late_probe = asoc_sdw_card_late_probe;
 	card->dapm_routes     = mt8901_card_routes;
